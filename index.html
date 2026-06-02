@@ -2,16 +2,17 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Tic-Tac-Toe 3D: 100 Boards Grand Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Retro Tic-Tac-Toe 3D: 100 Boards Mobile Grand Edition</title>
     <style>
         * {
             box-sizing: border-box;
             user-select: none;
-        }
-        body, html {
+            -webkit-user-select: none;
             margin: 0;
             padding: 0;
+        }
+        body, html {
             width: 100%;
             height: 100%;
             overflow: hidden;
@@ -47,18 +48,17 @@
         .menu-box {
             background: #3c2a21;
             border: 4px double #d4af37;
-            padding: 40px;
+            padding: 30px 20px;
             border-radius: 8px;
-            max-width: 500px;
+            max-width: 400px;
             width: 100%;
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
 
         h1 {
-            font-size: 28px;
+            font-size: 26px;
             color: #d4af37;
-            margin-top: 0;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             text-transform: uppercase;
             letter-spacing: 2px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
@@ -67,18 +67,18 @@
         .subtitle {
             font-style: italic;
             color: #bfa38a;
-            margin-bottom: 30px;
-            font-size: 14px;
+            margin-bottom: 25px;
+            font-size: 13px;
         }
 
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: left;
         }
 
         label {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             margin-bottom: 5px;
             color: #e7dec8;
             font-weight: bold;
@@ -89,8 +89,8 @@
             background-color: #f4eedb;
             border: 2px solid #634832;
             color: #1a120b;
-            padding: 12px;
-            font-size: 16px;
+            padding: 10px;
+            font-size: 15px;
             font-family: 'Georgia', serif;
             border-radius: 4px;
             outline: none;
@@ -102,7 +102,7 @@
         }
 
         .selector-title {
-            font-size: 14px;
+            font-size: 13px;
             margin-bottom: 10px;
             font-weight: bold;
             text-align: center;
@@ -112,15 +112,15 @@
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .role-btn {
             background: #231510;
             border: 2px solid #634832;
             color: #bfa38a;
-            padding: 10px 25px;
-            font-size: 20px;
+            padding: 8px 25px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             border-radius: 4px;
@@ -138,8 +138,8 @@
             width: 100%;
             background: linear-gradient(to bottom, #a05a3c 0%, #703820 100%);
             color: #fff;
-            padding: 15px;
-            font-size: 18px;
+            padding: 12px;
+            font-size: 16px;
             font-weight: bold;
             font-family: 'Georgia', serif;
             border: 2px solid #3c2a21;
@@ -156,7 +156,7 @@
             box-shadow: 0 1px 0 #4a2211, 0 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* HUD Papan Skor Atas */
+        /* HUD Atas Papan Skor (Dioptimalkan untuk HP) */
         #hud {
             position: absolute;
             top: 0;
@@ -165,7 +165,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 40px;
+            padding: 10px 15px;
             z-index: 10;
             background: linear-gradient(to bottom, rgba(22,15,10,0.95) 0%, rgba(22,15,10,0) 100%);
             pointer-events: none;
@@ -174,22 +174,22 @@
         .score-card {
             background: #3c2a21;
             border: 2px solid #d4af37;
-            padding: 8px 20px;
+            padding: 6px 12px;
             border-radius: 4px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            min-width: 160px;
+            width: 32%;
             text-align: center;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .score-card.active-turn {
             border-color: #fff;
-            box-shadow: 0 0 15px rgba(255,255,255,0.5);
-            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(255,255,255,0.5);
+            transform: scale(1.03);
         }
 
         .score-card .name {
-            font-size: 11px;
+            font-size: 10px;
             color: #bfa38a;
             text-transform: uppercase;
             white-space: nowrap;
@@ -198,7 +198,7 @@
         }
 
         .score-card .val {
-            font-size: 26px;
+            font-size: 20px;
             font-weight: bold;
             color: #d4af37;
         }
@@ -206,31 +206,51 @@
         #board-counter {
             background: #231510;
             border: 1px solid #634832;
-            padding: 6px 16px;
+            padding: 5px 10px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 11px;
             font-style: italic;
             color: #e7dec8;
+            text-align: center;
+            width: 30%;
         }
 
-        /* TAMPILAN MATRIKS 100 PAPAN (DOCK BAWAH) */
-        #matrix-container {
+        /* INDIKATOR GILIRAN */
+        #turn-indicator {
             position: absolute;
-            bottom: 15px;
+            top: 65px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(35, 21, 16, 0.85);
-            border: 2px solid #634832;
-            border-radius: 6px;
-            padding: 10px;
-            width: 90%;
-            max-width: 800px;
             z-index: 10;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.6);
+            background: rgba(35, 21, 16, 0.85);
+            border: 1px solid #634832;
+            padding: 4px 14px;
+            border-radius: 4px;
+            font-size: 11px;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        #turn-indicator span {
+            color: #d4af37;
+            font-weight: bold;
+        }
+
+        /* STRUKTUR DOCK BAWAH: 100 PAPAN MATRIKS (10x10 FULL SEUTUHNYA DI HP) */
+        #matrix-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(28, 17, 12, 0.95);
+            border-top: 2px solid #634832;
+            padding: 8px 10px 12px 10px;
+            z-index: 10;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
         }
 
         .matrix-title {
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             text-align: center;
             letter-spacing: 1px;
@@ -240,14 +260,18 @@
 
         .matrix-grid {
             display: grid;
-            grid-template-columns: repeat(20, 1fr);
-            gap: 4px;
+            grid-template-columns: repeat(10, 1fr); /* 10 Kolom Pas */
+            grid-template-rows: repeat(10, 1fr);    /* 10 Baris Pas */
+            gap: 3px;
+            width: 100%;
+            max-width: 450px; /* Batasan proporsional di layar lebar */
+            margin: 0 auto;
         }
 
         .mini-board {
             aspect-ratio: 1;
-            background: #1a120b;
-            border: 1px solid #4a3425;
+            background: #120a06;
+            border: 1px solid #3a2518;
             border-radius: 2px;
             display: flex;
             align-items: center;
@@ -255,35 +279,32 @@
             font-size: 9px;
             font-weight: bold;
             color: #4a3425;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .mini-board.active {
             border-color: #d4af37;
             color: #e7dec8;
             background: #4a3425;
-            box-shadow: 0 0 4px #d4af37;
+            box-shadow: 0 0 5px #d4af37;
         }
 
         .mini-board.win-X {
             background: #d4af37;
             color: #1a120b;
             border-color: #fff;
-            text-shadow: none;
         }
 
         .mini-board.win-O {
             background: #895037;
             color: #fff;
             border-color: #bfa38a;
-            text-shadow: none;
         }
 
         .mini-board.win-draw {
             background: #555;
-            color: #999;
+            color: #bbb;
             border-color: #666;
-            text-shadow: none;
         }
 
         /* Kanvas Utama Game */
@@ -296,7 +317,7 @@
         /* Notifikasi Banner Kemenangan */
         #banner-overlay {
             position: absolute;
-            top: 40%;
+            top: 35%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
             z-index: 50;
@@ -304,6 +325,7 @@
             pointer-events: none;
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 90%;
         }
 
         #banner-overlay.show {
@@ -312,7 +334,7 @@
         }
 
         .banner-title {
-            font-size: 44px;
+            font-size: 32px;
             color: #fff;
             text-shadow: 0 0 10px #ffaa00, 0 0 20px #ff5500, 2px 2px 5px #000;
             font-weight: bold;
@@ -321,30 +343,11 @@
         }
 
         .banner-sub {
-            font-size: 18px;
+            font-size: 15px;
             color: #d4af37;
             text-shadow: 1px 1px 3px #000;
-            margin-top: 8px;
+            margin-top: 6px;
             font-style: italic;
-        }
-
-        #turn-indicator {
-            position: absolute;
-            top: 85px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            background: rgba(35, 21, 16, 0.8);
-            border: 1px solid #634832;
-            padding: 4px 18px;
-            border-radius: 4px;
-            font-size: 12px;
-            pointer-events: none;
-        }
-
-        #turn-indicator span {
-            color: #d4af37;
-            font-weight: bold;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -401,7 +404,7 @@
     <div id="turn-indicator" style="display: none;">Giliran: <span id="current-turn-name">-</span></div>
 
     <div id="matrix-container" style="display: none;">
-        <div class="matrix-title">Status Koleksi 100 Papan Pertandingan</div>
+        <div class="matrix-title">Status Kemajuan 100 Papan</div>
         <div class="matrix-grid" id="matrix-grid">
             </div>
     </div>
@@ -421,10 +424,10 @@
             currentGrid: Array(9).fill(null),
             isGrounded: false, 
             p1Symbol: "X",
-            boardHistory: Array(100).fill(null) // Menyimpan pemenang dari tiap-tiap papan
+            boardHistory: Array(100).fill(null)
         };
 
-        // --- AUDIO ENGINE ---
+        // --- AUDIO ENGINE SYNTHESIZER ---
         const AudioEngine = {
             ctx: null,
             init() {
@@ -450,25 +453,15 @@
                     let gain = this.ctx.createGain();
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(f, now + i * 0.05);
-                    gain.gain.setValueAtTime(0.2, now + i * 0.05);
+                    gain.gain.setValueAtTime(0.15, now + i * 0.05);
                     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8 + i * 0.05);
                     osc.connect(gain); gain.connect(this.ctx.destination);
                     osc.start(now + i * 0.05); osc.stop(now + 0.8 + i * 0.05);
                 });
-                let bufferSize = this.ctx.sampleRate * 1.5,
-                    buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate),
-                    data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
-                let noise = this.ctx.createBufferSource(); noise.buffer = buffer;
-                let filter = this.ctx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.value = 1000;
-                let noiseGain = this.ctx.createGain();
-                noiseGain.gain.setValueAtTime(0.4, now); noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-                noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(this.ctx.destination);
-                noise.start(now); noise.stop(now + 1.2);
             }
         };
 
-        // --- RENDER GRID 100 PAPAN PADA DOCK UI ---
+        // --- MEMBUAT LAYOUT GRID 10x10 UNTUK 100 PAPAN ---
         function build100BoardsMatrixUI() {
             const gridContainer = document.getElementById('matrix-grid');
             gridContainer.innerHTML = "";
@@ -487,7 +480,6 @@
                 const el = document.getElementById(`mini-board-${i}`);
                 if (!el) continue;
                 
-                // Reset kelas dasar
                 el.className = 'mini-board';
                 
                 if (i === GameState.currentBoardIndex) {
@@ -501,7 +493,7 @@
             }
         }
 
-        // --- FORM LOGIKA SETUP ---
+        // --- MENU LOGIC ---
         function setSymbol(sym) {
             GameState.p1Symbol = sym;
             document.getElementById('btn-select-x').classList.toggle('active', sym === 'X');
@@ -541,7 +533,7 @@
         function updateHUD() {
             document.getElementById('score-x').innerText = GameState.players.X.score;
             document.getElementById('score-o').innerText = GameState.players.O.score;
-            document.getElementById('board-counter').innerText = `Papan: ${GameState.currentBoardIndex} / 100`;
+            document.getElementById('board-counter').innerText = `${GameState.currentBoardIndex} / 100`;
             document.getElementById('current-turn-name').innerText = GameState.players[GameState.currentPlayer].name + ` (${GameState.currentPlayer})`;
             
             document.getElementById('card-x').classList.toggle('active-turn', GameState.currentPlayer === 'X');
@@ -549,7 +541,7 @@
             updateMatrixUI();
         }
 
-        // --- GAME ENGINE 3D (THREE.JS) ---
+        // --- THREE.JS ENGINE ---
         let scene, camera, renderer, raycaster, mouse;
         let boardGroup, cellsArray = [], piecesGroup;
         let fireParticles = [];
@@ -570,15 +562,14 @@
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
 
-            // Pencahayaan Ambience Hangat
             const ambientLight = new THREE.AmbientLight(0xfff5e6, 0.6);
             scene.add(ambientLight);
 
             const dirLight = new THREE.DirectionalLight(0xffddaa, 0.8);
             dirLight.position.set(6, 14, 9);
             dirLight.castShadow = true;
-            dirLight.shadow.mapSize.width = 2048;
-            dirLight.shadow.mapSize.height = 2048;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
             scene.add(dirLight);
 
             const pointLight = new THREE.PointLight(0xffaa44, 0.5, 20);
@@ -589,6 +580,9 @@
             piecesGroup = new THREE.Group();
             boardGroup.add(piecesGroup);
             scene.add(boardGroup);
+
+            // Menaikkan posisi koordinat papan utama (Y = 1.0) agar tidak tertutup dock 100 papan di HP
+            boardGroup.position.set(0, 1.0, 0);
 
             createVintageBoard();
             positionCameraForCurrentPlayer(false);
@@ -633,7 +627,7 @@
             }
         }
 
-        // --- SISTEM DINAMIS SUDUT PANDANG PLAYER (DIBUAT AGAR TERLIHAT AGAK JAUH) ---
+        // --- MANAJEMEN SUDUT PANDANG JAUH (PROPORSIONAL HP) ---
         function positionCameraForCurrentPlayer(animated = true) {
             targetCameraAngle = GameState.players[GameState.currentPlayer].angle;
             
@@ -653,18 +647,21 @@
         }
 
         function updateCameraPosition() {
-            // Jarak radius dijauhkan dari 8.5 ke 11.5 dan tinggi dinaikkan ke 8.0 agar bidang pandang luas
-            const radius = 11.5;
-            const height = 8.0;
+            // Set radius jarak agak jauh (12.0) dan target bidik disesuaikan dengan tinggi papan baru
+            const radius = 12.0;
+            const height = 8.5;
             camera.position.x = Math.sin(currentCameraAngle) * radius;
             camera.position.z = Math.cos(currentCameraAngle) * radius;
             camera.position.y = height;
-            camera.lookAt(0, 0.0, 0);
+            camera.lookAt(0, 0.8, 0);
         }
 
         function onPointerDown(event) {
             if (GameState.isGrounded) return;
-            if (event.clientY < 90 || event.clientY > (window.innerHeight - 110)) return; // Blokir klik area HUD atas dan Grid bawah
+            
+            // Batasi klik raycast agar tidak tembus saat jari menekan area dock matriks bawah
+            const matrixContainerHeight = document.getElementById('matrix-container').offsetHeight;
+            if (event.clientY < 90 || event.clientY > (window.innerHeight - matrixContainerHeight)) return;
 
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -695,7 +692,7 @@
 
             gsap.to(symbolMesh.position, {
                 y: 0.4,
-                duration: 0.4,
+                duration: 0.35,
                 ease: "bounce.out",
                 onComplete: () => { checkBoardStatus(); }
             });
@@ -706,10 +703,8 @@
             if (type === "X") {
                 const matX = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.2, metalness: 0.8 });
                 const armGeo = new THREE.BoxGeometry(0.3, 0.2, 1.4);
-                
                 const arm1 = new THREE.Mesh(armGeo, matX); arm1.rotation.y = Math.PI / 4; arm1.castShadow = true;
                 const arm2 = new THREE.Mesh(armGeo, matX); arm2.rotation.y = -Math.PI / 4; arm2.castShadow = true;
-
                 group.add(arm1, arm2);
             } else {
                 const matO = new THREE.MeshStandardMaterial({ color: 0xaa6644, roughness: 0.2, metalness: 0.7 });
@@ -720,7 +715,7 @@
             return group;
         }
 
-        // --- CEK KEMENANGAN & UPDATE STATUS KOLEKSI PAPAN ---
+        // --- VALIDASI HUBUNGAN KEMENANGAN ---
         function checkBoardStatus() {
             const winPatterns = [
                 [0,1,2], [3,4,5], [6,7,8],
@@ -742,18 +737,18 @@
 
             if (winner) {
                 GameState.players[winner].score += 1;
-                GameState.boardHistory[GameState.currentBoardIndex - 1] = winner; // Catat di riwayat koleksi
+                GameState.boardHistory[GameState.currentBoardIndex - 1] = winner;
                 AudioEngine.playWin();
                 
                 spawnFireGoldParticles(winningCombo);
                 showVictoryBanner(`${GameState.players[winner].name} MENANG!`, "+1 Poin Garis Emas");
                 
-                setTimeout(() => { transitionToNextBoard(); }, 3500);
+                setTimeout(() => { transitionToNextBoard(); }, 3000);
 
             } else if (!GameState.currentGrid.includes(null)) {
                 GameState.boardHistory[GameState.currentBoardIndex - 1] = 'DRAW';
                 showVictoryBanner("SERI / DRAW", "Papan Terisi Penuh, Tidak Ada Poin");
-                setTimeout(() => { transitionToNextBoard(); }, 2500);
+                setTimeout(() => { transitionToNextBoard(); }, 2200);
             } else {
                 GameState.currentPlayer = GameState.currentPlayer === "X" ? "O" : "X";
                 updateHUD();
@@ -764,25 +759,25 @@
         function spawnFireGoldParticles(combo) {
             combo.forEach(idx => {
                 const cellPos = cellsArray[idx].position;
-                for (let i = 0; i < 60; i++) {
-                    const pGeo = new THREE.BoxGeometry(0.14, 0.14, 0.14);
+                for (let i = 0; i < 40; i++) {
+                    const pGeo = new THREE.BoxGeometry(0.12, 0.12, 0.12);
                     const pMat = new THREE.MeshBasicMaterial({
                         color: new THREE.Color().setHSL(0.07 + Math.random() * 0.05, 1.0, 0.5 + Math.random() * 0.3)
                     });
                     const pMesh = new THREE.Mesh(pGeo, pMat);
                     
                     pMesh.position.set(
-                        cellPos.x + (Math.random() - 0.5) * 1.2,
-                        0.4,
-                        cellPos.z + (Math.random() - 0.5) * 1.2
+                        cellPos.x + (Math.random() - 0.5) * 1.0,
+                        1.4,
+                        cellPos.z + (Math.random() - 0.5) * 1.0
                     );
 
                     pMesh.userData = {
-                        vx: (Math.random() - 0.5) * 0.1,
-                        vy: 0.1 + Math.random() * 0.18,
-                        vz: (Math.random() - 0.5) * 0.1,
+                        vx: (Math.random() - 0.5) * 0.08,
+                        vy: 0.1 + Math.random() * 0.15,
+                        vz: (Math.random() - 0.5) * 0.08,
                         life: 1.0,
-                        decay: 0.015 + Math.random() * 0.02
+                        decay: 0.02 + Math.random() * 0.02
                     };
 
                     scene.add(pMesh);
@@ -795,12 +790,13 @@
             const banner = document.getElementById('banner-overlay');
             document.getElementById('banner-text').innerText = title;
             document.getElementById('banner-subtext').innerText = subtitle;
+            banner.box = true;
             banner.classList.add('show');
             
-            setTimeout(() => { banner.classList.remove('show'); }, 3000);
+            setTimeout(() => { banner.classList.remove('show'); }, 2600);
         }
 
-        // --- TRANSISI PERGANTIAN PAPAN ---
+        // --- TRANSISI NEXT BOARD ---
         function transitionToNextBoard() {
             if (GameState.currentBoardIndex >= GameState.totalBoards) {
                 endGameMatch();
@@ -810,10 +806,10 @@
             GameState.currentBoardIndex++;
             updateHUD();
 
-            // Animasi Runtuh Papan Lama
+            // Animasi Runtuh Papan (Menyesuaikan titik Y offset baru)
             gsap.to(boardGroup.position, {
-                y: -12,
-                duration: 0.8,
+                y: -11,
+                duration: 0.7,
                 ease: "power2.in",
                 onComplete: () => {
                     while(piecesGroup.children.length > 0){
@@ -821,13 +817,12 @@
                     }
                     GameState.currentGrid.fill(null);
                     
-                    // Datangkan papan baru dari langit atas
-                    boardGroup.position.y = 12;
+                    boardGroup.position.y = 13;
                     positionCameraForCurrentPlayer(false);
 
                     gsap.to(boardGroup.position, {
-                        y: 0,
-                        duration: 0.8,
+                        y: 1.0,
+                        duration: 0.7,
                         ease: "power2.out",
                         onComplete: () => { GameState.isGrounded = false; }
                     });
@@ -835,7 +830,6 @@
             });
         }
 
-        // --- PERMAINAN BERAKHIR (100 PAPAN TERPENUHI) ---
         function endGameMatch() {
             GameState.isGrounded = true;
             document.getElementById('turn-indicator').style.display = 'none';
@@ -849,7 +843,7 @@
             } else if (scoreO > scoreX) {
                 finalWinnerStr = `JUARA UTAMA MATCH: ${GameState.players.O.name} (O)!`;
             } else {
-                finalWinnerStr = "PERTANDINGAN BERAKHIR SERI SAMA KUAT!";
+                finalWinnerStr = "MATCH BERAKHIR SERI SAMA KUAT!";
             }
 
             const banner = document.getElementById('banner-overlay');
@@ -860,14 +854,13 @@
             setInterval(() => {
                 const randomCombo = [Math.floor(Math.random() * 9)];
                 spawnFireGoldParticles(randomCombo);
-            }, 250);
+            }, 300);
         }
 
         // --- ANIMATION FRAME LOOP ---
         function animate() {
             requestAnimationFrame(animate);
 
-            // Gerakan partikel emisi api emas
             for (let i = fireParticles.length - 1; i >= 0; i--) {
                 const p = fireParticles[i];
                 p.position.x += p.userData.vx;
@@ -884,7 +877,6 @@
                 }
             }
 
-            // Goyangan mekanis halus saat idle kamera menjauh
             if (boardGroup && !GameState.isGrounded) {
                 boardGroup.rotation.y = Math.sin(Date.now() * 0.0004) * 0.02;
             } else if(GameState.isGrounded && boardGroup) {
@@ -901,6 +893,7 @@
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
+                updateCameraPosition();
             }
         }
     </script>
