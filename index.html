@@ -1,1 +1,818 @@
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Tic-Tac-Toe 3D: 100 Boards</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a120b;
+            font-family: 'Georgia', serif;
+            color: #e7dec8;
+        }
+
+        /* Nuansa Vintage Overlay Kertas Kuno */
+        .vintage-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.4) 100%);
+            z-index: 999;
+        }
+
+        /* Screen Menu Utama */
+        #menu-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #2c1e15 0%, #120a06 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.5s ease;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .menu-box {
+            background: #3c2a21;
+            border: 4px double #d4af37;
+            padding: 40px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #d4af37;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+        }
+
+        .subtitle {
+            font-style: italic;
+            color: #bfa38a;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #e7dec8;
+            font-weight: bold;
+        }
+
+        .vintage-input {
+            width: 100%;
+            background-color: #f4eedb;
+            border: 2px solid #634832;
+            color: #1a120b;
+            padding: 12px;
+            font-size: 16px;
+            font-family: 'Georgia', serif;
+            border-radius: 4px;
+            outline: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .vintage-input:focus {
+            border-color: #d4af37;
+        }
+
+        .selector-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .role-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .role-btn {
+            background: #231510;
+            border: 2px solid #634832;
+            color: #bfa38a;
+            padding: 10px 25px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .role-btn.active {
+            background: #d4af37;
+            color: #1a120b;
+            border-color: #fff;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .vintage-btn {
+            width: 100%;
+            background: linear-gradient(to bottom, #a05a3c 0%, #703820 100%);
+            color: #fff;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: 'Georgia', serif;
+            border: 2px solid #3c2a21;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #4a2211, 0 6px 10px rgba(0,0,0,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.1s;
+        }
+
+        .vintage-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #4a2211, 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* HUD Atas: Papan Skor */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(26,18,11,0.9) 0%, rgba(26,18,11,0) 100%);
+            pointer-events: none;
+        }
+
+        .score-card {
+            background: #3c2a21;
+            border: 2px solid #d4af37;
+            padding: 10px 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            min-width: 150px;
+            text-align: center;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .score-card.active-turn {
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.4);
+            transform: scale(1.05);
+        }
+
+        .score-card .name {
+            font-size: 12px;
+            color: #bfa38a;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .score-card .val {
+            font-size: 28px;
+            font-weight: bold;
+            color: #d4af37;
+            margin-top: 2px;
+        }
+
+        #board-counter {
+            background: #231510;
+            border: 1px solid #634832;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-style: italic;
+            color: #e7dec8;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Kanvas Utama Game */
+        #game-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Notifikasi Menang / Efek Teks */
+        #banner-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            z-index: 50;
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #banner-overlay.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .banner-title {
+            font-size: 48px;
+            color: #fff;
+            text-shadow: 0 0 10px #ffaa00, 0 0 20px #ff5500, 2px 2px 5px #000;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .banner-sub {
+            font-size: 20px;
+            color: #d4af37;
+            text-shadow: 1px 1px 3px #000;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* Petunjuk Giliran Aktif */
+        #turn-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(35, 21, 16, 0.8);
+            border: 1px solid #634832;
+            padding: 8px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+
+        #turn-indicator span {
+            color: #d4af37;
+            font-weight: bold;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+
+    <div class="vintage-overlay"></div>
+
+    <div id="menu-screen">
+        <div class="menu-box">
+            <h1>CENTURY BOARD</h1>
+            <div class="subtitle">XOXO 3D Vintage Edition</div>
+            
+            <div class="input-group">
+                <label for="p1-name">Nama Pemain 1</label>
+                <input type="text" id="p1-name" class="vintage-input" placeholder="Masukkan nama..." value="Player 1">
+            </div>
+
+            <div class="input-group">
+                <label for="p2-name">Nama Pemain 2</label>
+                <input type="text" id="p2-name" class="vintage-input" placeholder="Masukkan nama..." value="Player 2">
+            </div>
+
+            <div class="selector-title">Pemain 1 Memilih Simbol:</div>
+            <div class="role-selector">
+                <button type="button" id="btn-select-x" class="role-btn active" onclick="setSymbol('X')">X</button>
+                <button type="button" id="btn-select-o" class="role-btn" onclick="setSymbol('O')">O</button>
+            </div>
+
+            <button type="button" class="vintage-btn" onclick="initiateGame()">Mulai Pertandingan</button>
+        </div>
+    </div>
+
+    <div id="hud" style="display: none;">
+        <div id="card-x" class="score-card">
+            <div id="name-x" class="name">PLAYER X</div>
+            <div id="score-x" class="val">0</div>
+        </div>
+        
+        <div id="board-counter">Papan: 1 / 100</div>
+
+        <div id="card-o" class="score-card">
+            <div id="name-o" class="name">PLAYER O</div>
+            <div id="score-o" class="val">0</div>
+        </div>
+    </div>
+
+    <div id="banner-overlay">
+        <div id="banner-text" class="banner-title">X MENANG!</div>
+        <div id="banner-subtext" class="banner-sub">+1 Poin Emas</div>
+    </div>
+
+    <div id="turn-indicator" style="display: none;">Giliran: <span id="current-turn-name">-</span></div>
+
+    <canvas id="game-canvas"></canvas>
+
+    <script>
+        // --- PROPERTI & STATE UTAMA GAME ---
+        const GameState = {
+            players: {
+                X: { name: "Player X", score: 0, angle: 0 },
+                O: { name: "Player O", score: 0, angle: Math.PI } // Sisi berlawanan (180 derajat)
+            },
+            currentPlayer: "X",
+            currentBoardIndex: 1,
+            totalBoards: 100,
+            currentGrid: Array(9).fill(null),
+            isGrounded: false, // Menghindari bug click bertumpuk sewaktu transisi kamera
+            p1Symbol: "X"
+        };
+
+        // --- AUDIO ENGINE (Membangun Sintesis Suara Dinamis Kuno) ---
+        const AudioEngine = {
+            ctx: null,
+            init() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            playClick() {
+                if(!this.ctx) return;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.1);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.1);
+            },
+            playWin() {
+                if(!this.ctx) return;
+                let now = this.ctx.currentTime;
+                // Harmoni Akord Bell Kuningan/Emas
+                [440, 554.37, 659.25, 880].forEach((f, i) => {
+                    let osc = this.ctx.createOscillator();
+                    let gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(f, now + i * 0.05);
+                    gain.gain.setValueAtTime(0.2, now + i * 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8 + i * 0.05);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + i * 0.05); osc.stop(now + 0.8 + i * 0.05);
+                });
+                // Desisan Suara Semburan Api Terbakar (White Noise Generator)
+                let bufferSize = this.ctx.sampleRate * 1.5,
+                    buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate),
+                    data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                let noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                let filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 1000;
+                let noiseGain = this.ctx.createGain();
+                noiseGain.gain.setValueAtTime(0.4, now);
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+                noise.connect(filter);
+                filter.connect(noiseGain);
+                noiseGain.connect(this.ctx.destination);
+                noise.start(now); noise.stop(now + 1.2);
+            }
+        };
+
+        // --- LOGIKA FORM UI UTAMA ---
+        function setSymbol(sym) {
+            GameState.p1Symbol = sym;
+            document.getElementById('btn-select-x').classList.toggle('active', sym === 'X');
+            document.getElementById('btn-select-o').classList.toggle('active', sym === 'O');
+        }
+
+        function initiateGame() {
+            AudioEngine.init();
+            
+            const p1Input = document.getElementById('p1-name').value.trim() || "Pemain 1";
+            const p2Input = document.getElementById('p2-name').value.trim() || "Pemain 2";
+
+            if (GameState.p1Symbol === 'X') {
+                GameState.players.X.name = p1Input;
+                GameState.players.O.name = p2Input;
+            } else {
+                GameState.players.X.name = p2Input;
+                GameState.players.O.name = p1Input;
+            }
+
+            document.getElementById('name-x').innerText = GameState.players.X.name + " (X)";
+            document.getElementById('name-o').innerText = GameState.players.O.name + " (O)";
+            updateHUD();
+
+            document.getElementById('menu-screen').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('menu-screen').style.display = 'none';
+                document.getElementById('hud').style.display = 'flex';
+                document.getElementById('turn-indicator').style.display = 'block';
+                build3DScene();
+            }, 500);
+        }
+
+        function updateHUD() {
+            document.getElementById('score-x').innerText = GameState.players.X.score;
+            document.getElementById('score-o').innerText = GameState.players.O.score;
+            document.getElementById('board-counter').innerText = `Papan: ${GameState.currentBoardIndex} / 100`;
+            document.getElementById('current-turn-name').innerText = GameState.players[GameState.currentPlayer].name + ` (${GameState.currentPlayer})`;
+            
+            document.getElementById('card-x').classList.toggle('active-turn', GameState.currentPlayer === 'X');
+            document.getElementById('card-o').classList.toggle('active-turn', GameState.currentPlayer === 'O');
+        }
+
+        // --- SISTEM GAME ENGINE 3D ---
+        let scene, camera, renderer, raycaster, mouse;
+        let boardGroup, cellsArray = [], piecesGroup;
+        let fireParticles = [];
+        let targetCameraAngle = 0;
+        let currentCameraAngle = 0;
+
+        function build3DScene() {
+            const canvas = document.getElementById('game-canvas');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a120b);
+            scene.fog = new THREE.FogExp2(0x1a120b, 0.05);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            // Pencahayaan Ambience Ruangan Kuno
+            const ambientLight = new THREE.AmbientLight(0xfff5e6, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffddaa, 0.8);
+            dirLight.position.set(5, 12, 8);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
+
+            const pointLight = new THREE.PointLight(0xffaa44, 0.5, 15);
+            pointLight.position.set(0, 4, 0);
+            scene.add(pointLight);
+
+            boardGroup = new THREE.Group();
+            piecesGroup = new THREE.Group();
+            boardGroup.add(piecesGroup);
+            scene.add(boardGroup);
+
+            createVintageBoard();
+            positionCameraForCurrentPlayer(false);
+
+            window.addEventListener('resize', onWindowResize, false);
+            window.addEventListener('pointerdown', onPointerDown, false);
+
+            animate();
+        }
+
+        function createVintageBoard() {
+            // Tekstur Visual Kayu Tua
+            const boardMat = new THREE.MeshStandardMaterial({ color: 0x4a2e1b, roughness: 0.4, metalness: 0.1 });
+            // Pembatas Kuningan Emas Antik
+            const lineMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.2, metalness: 0.8 });
+
+            const baseMesh = new THREE.Mesh(new THREE.BoxGeometry(6.2, 0.4, 6.2), boardMat);
+            baseMesh.receiveShadow = true;
+            boardGroup.add(baseMesh);
+
+            // Kisi Grid Emas
+            const lineW = 0.1, lineH = 0.08, lineL = 6.0;
+            for (let i = 0; i < 2; i++) {
+                let pos = -1.0 + i * 2.0;
+                let zLine = new THREE.Mesh(new THREE.BoxGeometry(lineW, lineH, lineL), lineMat);
+                zLine.position.set(pos, 0.21, 0);
+                boardGroup.add(zLine);
+
+                let xLine = new THREE.Mesh(new THREE.BoxGeometry(lineL, lineH, lineW), lineMat);
+                xLine.position.set(0, 0.21, pos);
+                boardGroup.add(xLine);
+            }
+
+            // Batas Raycasting Klik 3x3 Kotak Logika (Hidden)
+            cellsArray = [];
+            let idx = 0;
+            for (let z = 0; z < 3; z++) {
+                for (let x = 0; x < 3; x++) {
+                    const cellMesh = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.1, 1.8), new THREE.MeshBasicMaterial({ visible: false }));
+                    cellMesh.position.set(-2.0 + x * 2.0, 0.25, -2.0 + z * 2.0);
+                    cellMesh.userData = { index: idx };
+                    boardGroup.add(cellMesh);
+                    cellsArray.push(cellMesh);
+                    idx++;
+                }
+            }
+        }
+
+        // --- SISTEM DINAMIS SUDUT PANDANG PLAYER ---
+        function positionCameraForCurrentPlayer(animated = true) {
+            targetCameraAngle = GameState.players[GameState.currentPlayer].angle;
+            
+            if (!animated) {
+                currentCameraAngle = targetCameraAngle;
+                updateCameraPosition();
+            } else {
+                GameState.isGrounded = true; 
+                gsap.to(this, {
+                    currentCameraAngle: targetCameraAngle,
+                    duration: 1.2,
+                    ease: "power2.inOut",
+                    onUpdate: () => { updateCameraPosition(); },
+                    onComplete: () => { GameState.isGrounded = false; }
+                });
+            }
+        }
+
+        function updateCameraPosition() {
+            const radius = 8.5;
+            const height = 6.0;
+            camera.position.x = Math.sin(currentCameraAngle) * radius;
+            camera.position.z = Math.cos(currentCameraAngle) * radius;
+            camera.position.y = height;
+            camera.lookAt(0, 0.2, 0);
+        }
+
+        function onPointerDown(event) {
+            if (GameState.isGrounded) return;
+            if (event.clientY < 90) return; // Mengabaikan klik area atas HUD
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(cellsArray);
+
+            if (intersects.length > 0) {
+                const clickedCell = intersects[0].object;
+                const cellIndex = clickedCell.userData.index;
+
+                if (GameState.currentGrid[cellIndex] === null) {
+                    executeMove(cellIndex, clickedCell.position);
+                }
+            }
+        }
+
+        function executeMove(index, pos) {
+            AudioEngine.playClick();
+            GameState.currentGrid[index] = GameState.currentPlayer;
+            
+            const symbolMesh = createPieceMesh(GameState.currentPlayer);
+            symbolMesh.position.set(pos.x, 3.0, pos.z); 
+            symbolMesh.castShadow = true;
+            piecesGroup.add(symbolMesh);
+
+            GameState.isGrounded = true; 
+
+            gsap.to(symbolMesh.position, {
+                y: 0.4,
+                duration: 0.4,
+                ease: "bounce.out",
+                onComplete: () => {
+                    checkBoardStatus();
+                }
+            });
+        }
+
+        function createPieceMesh(type) {
+            const group = new THREE.Group();
+            if (type === "X") {
+                const matX = new THREE.MeshStandardMaterial({ color: 0xcc9933, roughness: 0.2, metalness: 0.8 });
+                const armGeo = new THREE.BoxGeometry(0.3, 0.2, 1.4);
+                
+                const arm1 = new THREE.Mesh(armGeo, matX); arm1.rotation.y = Math.PI / 4; arm1.castShadow = true;
+                const arm2 = new THREE.Mesh(armGeo, matX); arm2.rotation.y = -Math.PI / 4; arm2.castShadow = true;
+
+                group.add(arm1, arm2);
+            } else {
+                const matO = new THREE.MeshStandardMaterial({ color: 0x996633, roughness: 0.2, metalness: 0.8 });
+                const ring = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.14, 8, 24), matO);
+                ring.rotation.x = Math.PI / 2; ring.castShadow = true;
+                group.add(ring);
+            }
+            return group;
+        }
+
+        // --- VALIDASI HUBUNGAN KEMENANGAN & ANIMASI APi EMAS ---
+        function checkBoardStatus() {
+            const winPatterns = [
+                [0,1,2], [3,4,5], [6,7,8], // Horisontal
+                [0,3,6], [1,4,7], [2,5,8], // Vertikal
+                [0,4,8], [2,4,6]           // Diagonal
+            ];
+
+            let winner = null;
+            let winningCombo = null;
+
+            for (let pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (GameState.currentGrid[a] && GameState.currentGrid[a] === GameState.currentGrid[b] && GameState.currentGrid[a] === GameState.currentGrid[c]) {
+                    winner = GameState.currentGrid[a];
+                    winningCombo = pattern;
+                    break;
+                }
+            }
+
+            if (winner) {
+                GameState.players[winner].score += 1;
+                AudioEngine.playWin();
+                
+                // Memicu semburan partikel Api Emas di baris kemenangan
+                spawnFireGoldParticles(winningCombo);
+                showVictoryBanner(`${GameState.players[winner].name} MENANG!`, "+1 Poin Garis Emas");
+                
+                setTimeout(() => {
+                    transitionToNextBoard();
+                }, 3500);
+
+            } else if (!GameState.currentGrid.includes(null)) {
+                showVictoryBanner("SERI / DRAW", "Papan Terisi Penuh, Tidak Ada Poin");
+                setTimeout(() => {
+                    transitionToNextBoard();
+                }, 2500);
+            } else {
+                GameState.currentPlayer = GameState.currentPlayer === "X" ? "O" : "X";
+                updateHUD();
+                positionCameraForCurrentPlayer(true);
+            }
+        }
+
+        function spawnFireGoldParticles(combo) {
+            combo.forEach(idx => {
+                const cellPos = cellsArray[idx].position;
+                for (let i = 0; i < 60; i++) {
+                    const pGeo = new THREE.BoxGeometry(0.12, 0.12, 0.12);
+                    const pMat = new THREE.MeshBasicMaterial({
+                        color: new THREE.Color().setHSL(0.08 + Math.random() * 0.05, 1.0, 0.5 + Math.random() * 0.3)
+                    });
+                    const pMesh = new THREE.Mesh(pGeo, pMat);
+                    
+                    pMesh.position.set(
+                        cellPos.x + (Math.random() - 0.5) * 1.2,
+                        0.4,
+                        cellPos.z + (Math.random() - 0.5) * 1.2
+                    );
+
+                    pMesh.userData = {
+                        vx: (Math.random() - 0.5) * 0.08,
+                        vy: 0.08 + Math.random() * 0.15,
+                        vz: (Math.random() - 0.5) * 0.08,
+                        life: 1.0,
+                        decay: 0.015 + Math.random() * 0.02
+                    };
+
+                    scene.add(pMesh);
+                    fireParticles.push(pMesh);
+                }
+            });
+        }
+
+        function showVictoryBanner(title, subtitle) {
+            const banner = document.getElementById('banner-overlay');
+            document.getElementById('banner-text').innerText = title;
+            document.getElementById('banner-subtext').innerText = subtitle;
+            banner.classList.add('show');
+            
+            setTimeout(() => { banner.classList.remove('show'); }, 3000);
+        }
+
+        // --- SISTEM TRANSISI ANTAR 100 PAPAN PERTANDINGAN ---
+        function transitionToNextBoard() {
+            GameState.currentBoardIndex++;
+            
+            if (GameState.currentBoardIndex > GameState.totalBoards) {
+                endGameMatch();
+                return;
+            }
+
+            // Animasi Meruntuhkan Papan Kebawah
+            gsap.to(boardGroup.position, {
+                y: -10,
+                duration: 0.8,
+                ease: "power2.in",
+                onComplete: () => {
+                    while(piecesGroup.children.length > 0){
+                        piecesGroup.remove(piecesGroup.children[0]);
+                    }
+                    GameState.currentGrid.fill(null);
+                    
+                    // Papan baru muncul turun dari langit atas
+                    boardGroup.position.y = 10;
+                    
+                    updateHUD();
+                    positionCameraForCurrentPlayer(false);
+
+                    gsap.to(boardGroup.position, {
+                        y: 0,
+                        duration: 0.8,
+                        ease: "power2.out",
+                        onComplete: () => { GameState.isGrounded = false; }
+                    });
+                }
+            });
+        }
+
+        // --- AKHIR PERMAINAN (100 PAPAN TERPENUHI) ---
+        function endGameMatch() {
+            GameState.isGrounded = true;
+            document.getElementById('turn-indicator').style.display = 'none';
+
+            let finalWinnerStr = "";
+            const scoreX = GameState.players.X.score;
+            const scoreO = GameState.players.O.score;
+
+            if (scoreX > scoreO) {
+                finalWinnerStr = `JUARA UTAMA MATCH: ${GameState.players.X.name} (X)!`;
+            } else if (scoreO > scoreX) {
+                finalWinnerStr = `JUARA UTAMA MATCH: ${GameState.players.O.name} (O)!`;
+            } else {
+                finalWinnerStr = "PERTANDINGAN BERAKHIR SERI SAMA KUAT!";
+            }
+
+            const banner = document.getElementById('banner-overlay');
+            document.getElementById('banner-text').innerText = "100 PAPAN SELESAI";
+            document.getElementById('banner-subtext').innerText = finalWinnerStr + ` (${scoreX} vs ${scoreO})`;
+            banner.classList.add('show');
+            
+            // Perayaan Kembang Api Emas Kontinu Tanpa Berhenti
+            setInterval(() => {
+                const randomCombo = [Math.floor(Math.random() * 9)];
+                spawnFireGoldParticles(randomCombo);
+            }, 300);
+        }
+
+        // --- ANIMATION FRAME LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update Gerakan Fisika Partikel Api Emas
+            for (let i = fireParticles.length - 1; i >= 0; i--) {
+                const p = fireParticles[i];
+                p.position.x += p.userData.vx;
+                p.position.y += p.userData.vy;
+                p.position.z += p.userData.vz;
+                
+                p.userData.vy -= 0.002; // Gravitasi perlambatan naik
+                p.userData.life -= p.userData.decay;
+                p.scale.setScalar(p.userData.life);
+
+                if (p.userData.life <= 0) {
+                    scene.remove(p);
+                    fireParticles.splice(i, 1);
+                }
+            }
+
+            // Rotasi Lambat Idle Papan agar Terasa Kedalaman Perspektif 3D
+            if (boardGroup && !GameState.isGrounded) {
+                boardGroup.rotation.y = Math.sin(Date.now() * 0.0005) * 0.03;
+            } else if(GameState.isGrounded && boardGroup) {
+                boardGroup.rotation.y = 0;
+            }
+
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        function onWindowResize() {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+    </script>
+</body>
+</html>
