@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Retro Tic-Tac-Toe 3D: 100 Grid Master</title>
+    <title>Retro Tic-Tac-Toe 3D: Wide Cinematic 100 Grid</title>
     <style>
         * {
             box-sizing: border-box;
@@ -16,7 +16,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #1a110b;
+            background-color: #160e0a;
             font-family: 'Georgia', serif;
             color: #e7dec8;
         }
@@ -26,7 +26,7 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.6) 100%);
+            background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.65) 100%);
             z-index: 999;
         }
 
@@ -134,7 +134,7 @@
             text-transform: uppercase;
         }
 
-        /* --- HUD ATAS (Persis Gambar Referensi 1000065718.png) --- */
+        /* HUD ATAS (Sesuai Gambar 1000065718.png) */
         #hud {
             position: absolute;
             top: 25px;
@@ -186,7 +186,7 @@
             font-weight: bold;
         }
 
-        /* Status Text Tengah Atas */
+        /* Status Teks Tengah */
         #status-text {
             position: absolute;
             top: 110px;
@@ -202,7 +202,7 @@
             text-transform: uppercase;
         }
 
-        /* --- DOCK PANEL TOMBOL CONTROL BAWAH --- */
+        /* PANEL KONTROL DOCK BAWAH */
         #control-dock {
             position: absolute;
             bottom: 45px;
@@ -309,7 +309,7 @@
         </div>
     </div>
 
-    <!-- HUD SKOR ATAS (PERSIS SEPERTI DI GAMBAR MOCKUP) -->
+    <!-- HUD SKOR ATAS -->
     <div id="hud" style="display: none;">
         <div id="card-x" class="score-card">
             <div id="name-x" class="name">WAITING...</div>
@@ -352,7 +352,7 @@
             },
             currentPlayer: "X",
             gridSize: 10,
-            currentGrid: Array(100).fill(null), // Murni 1 Papan Tunggal isi 100 Petak Kotak
+            currentGrid: Array(100).fill(null),
             isLock: false,
             p1Symbol: "X"
         };
@@ -405,22 +405,33 @@
         function build3DScene() {
             const canvas = document.getElementById('game-canvas');
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x1a110b);
+            scene.background = new THREE.Color(0x160e0a);
 
-            camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+            // FOV 32 memberikan kenyamanan distorsi wide-angle yang pas tanpa merusak bentuk bidak
+            camera = new THREE.PerspectiveCamera(32, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
             renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
 
-            const ambientLight = new THREE.AmbientLight(0xfff2e6, 0.8);
+            // SUTRADARA LAMPU
+            const ambientLight = new THREE.AmbientLight(0xfff5ea, 0.65);
             scene.add(ambientLight);
 
-            const dirLight = new THREE.DirectionalLight(0xffdfc4, 0.4);
-            dirLight.position.set(4, 12, 6);
+            const dirLight = new THREE.DirectionalLight(0xffe6cf, 0.95);
+            dirLight.position.set(-6, 14, 5);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
             scene.add(dirLight);
+
+            const backLight = new THREE.DirectionalLight(0x5c4033, 0.4);
+            backLight.position.set(4, 5, -6);
+            scene.add(backLight);
 
             boardGroup = new THREE.Group();
             piecesGroup = new THREE.Group();
@@ -439,27 +450,27 @@
         // --- MEMBUAT PAPAN COKELAT MATRIKS UTUH 10x10 ---
         function create100GridBoard() {
             cellsArray = [];
-            // Bersihkan sisa objek jika ada
             while(boardGroup.children.length > 1) {
                 boardGroup.remove(boardGroup.children[1]);
             }
 
-            const boardMat = new THREE.MeshStandardMaterial({ color: 0x2e1f16, roughness: 0.6 });
-            const cellMat = new THREE.MeshStandardMaterial({ color: 0x4a3325, roughness: 0.5 });
+            const boardMat = new THREE.MeshStandardMaterial({ color: 0x2a1b13, roughness: 0.55, metalness: 0.05 });
+            const cellMat = new THREE.MeshStandardMaterial({ color: 0x422d20, roughness: 0.45 });
 
-            // Alas Papan Utama Raksasa cokelat tua
-            const baseMesh = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.3, 8.2), boardMat);
+            const baseMesh = new THREE.Mesh(new THREE.BoxGeometry(8.3, 0.32, 8.3), boardMat);
+            baseMesh.receiveShadow = true;
             boardGroup.add(baseMesh);
 
             let idx = 0;
-            const step = 0.78; // Jarak susunan kotak petak
-            const origin = -3.51; // Titik awal sudut kiri atas grid
+            const step = 0.79; 
+            const origin = -3.555; 
 
             for (let z = 0; z < 10; z++) {
                 for (let x = 0; x < 10; x++) {
-                    const cellMesh = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.08, 0.7), cellMat);
+                    const cellMesh = new THREE.Mesh(new THREE.BoxGeometry(0.71, 0.08, 0.71), cellMat);
                     cellMesh.position.set(origin + (x * step), 0.16, origin + (z * step));
                     cellMesh.userData = { index: idx };
+                    cellMesh.receiveShadow = true;
                     
                     boardGroup.add(cellMesh);
                     cellsArray.push(cellMesh);
@@ -468,16 +479,29 @@
             }
         }
 
+        // --- PENYESUAIAN KAMERA WIDE DINAMIS (RESPONSIF AUTO-ZOOM OUT) ---
         function adjustCamera() {
-            // Sudut pandang kamera presisi tinggi miring ke depan (Pas dengan screen HP vertikal Anda)
-            camera.position.set(0, 9.2, 7.2);
-            camera.lookAt(0, -0.6, 0.2);
+            const aspect = window.innerWidth / window.innerHeight;
+
+            if (aspect < 1) {
+                // MODAL POTRAIT (Layar HP Tegak): Kamera secara otomatis mundur ke belakang (Z bertambah)
+                // dan naik sedikit (Y bertambah) agar lebar horizontal papan tidak terpotong tepi layar samping.
+                // Menggunakan rasio pengali berbasis kerampingan layar.
+                const multiplier = 1 / aspect;
+                const targetZ = Math.max(9.5, 6.4 * multiplier);
+                const targetY = Math.max(10.5, 7.2 * multiplier);
+                
+                camera.position.set(0, targetY, targetZ);
+                camera.lookAt(0, -1.0, 0.0);
+            } else {
+                // MODAL LANDSCAPE (Layar PC/Tablet Lebar): Sudut pandang wide ideal default yang sangat lega.
+                camera.position.set(0, 10.2, 9.2);
+                camera.lookAt(0, -0.65, 0.1);
+            }
         }
 
         function onPointerDown(event) {
             if (GameState.isLock) return;
-            
-            // Mencegah klik menembus area tombol atas dan bawah HUD
             if (event.clientY < 140 || event.clientY > (window.innerHeight - 130)) return;
 
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -500,15 +524,15 @@
             GameState.currentGrid[index] = GameState.currentPlayer;
             
             const symbolMesh = create3DPiece(GameState.currentPlayer);
-            symbolMesh.position.set(pos.x, 2.0, pos.z); 
+            symbolMesh.position.set(pos.x, 2.5, pos.z); 
             piecesGroup.add(symbolMesh);
 
             GameState.isLock = true; 
 
             gsap.to(symbolMesh.position, {
                 y: 0.22,
-                duration: 0.2,
-                ease: "power2.out",
+                duration: 0.22,
+                ease: "bounce.out", 
                 onComplete: () => { checkWinCondition(index); }
             });
         }
@@ -516,21 +540,22 @@
         function create3DPiece(type) {
             const group = new THREE.Group();
             if (type === "X") {
-                const matX = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.2, metalness: 0.6 });
-                const armGeo = new THREE.BoxGeometry(0.12, 0.12, 0.48);
-                const arm1 = new THREE.Mesh(armGeo, matX); arm1.rotation.y = Math.PI / 4;
-                const arm2 = new THREE.Mesh(armGeo, matX); arm2.rotation.y = -Math.PI / 4;
+                const matX = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.25, metalness: 0.55 });
+                const armGeo = new THREE.BoxGeometry(0.12, 0.13, 0.46);
+                const arm1 = new THREE.Mesh(armGeo, matX); arm1.rotation.y = Math.PI / 4; arm1.castShadow = true;
+                const arm2 = new THREE.Mesh(armGeo, matX); arm2.rotation.y = -Math.PI / 4; arm2.castShadow = true;
                 group.add(arm1, arm2);
             } else {
-                const matO = new THREE.MeshStandardMaterial({ color: 0xcc6644, roughness: 0.2, metalness: 0.4 });
-                const ring = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.05, 6, 16), matO);
+                const matO = new THREE.MeshStandardMaterial({ color: 0xd15b3d, roughness: 0.25, metalness: 0.35 });
+                const ring = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.052, 8, 24), matO);
                 ring.rotation.x = Math.PI / 2;
+                ring.castShadow = true;
                 group.add(ring);
             }
             return group;
         }
 
-        // --- ATURAN LIMA SEBARIS (GOMOKU WIN LOGIC) ---
+        // --- WIN LOGIC ---
         function checkWinCondition(lastIdx) {
             const size = GameState.gridSize;
             const r = Math.floor(lastIdx / size);
@@ -538,10 +563,10 @@
             const sym = GameState.currentGrid[lastIdx];
 
             const directions = [
-                { dr: 0, dc: 1 },  // Horizontal
-                { dr: 1, dc: 0 },  // Vertical
-                { dr: 1, dc: 1 },  // Diagonal Kanan-Bawah
-                { dr: 1, dc: -1 }  // Diagonal Kiri-Bawah
+                { dr: 0, dc: 1 },  
+                { dr: 1, dc: 0 },  
+                { dr: 1, dc: 1 },  
+                { dr: 1, dc: -1 }  
             ];
 
             for (let d of directions) {
@@ -598,12 +623,12 @@
             }, 2500);
         }
 
-        // --- PENGATURAN CONTROL PANEL BAWAH ---
+        // --- CONTROL PANEL ---
         function refreshTampilan() {
             gsap.to(boardGroup.rotation, {
                 y: boardGroup.rotation.y + Math.PI * 2,
-                duration: 0.8,
-                ease: "power2.inOut"
+                duration: 0.9,
+                ease: "power3.inOut"
             });
         }
 
@@ -626,10 +651,12 @@
             document.getElementById('menu-screen').style.opacity = 1;
         }
 
+        // ANIMATION LOOP
         function animate() {
             requestAnimationFrame(animate);
             if (boardGroup && !GameState.isLock) {
-                boardGroup.rotation.y = Math.sin(Date.now() * 0.0003) * 0.012;
+                boardGroup.rotation.y = Math.sin(Date.now() * 0.0002) * 0.01;
+                boardGroup.position.y = Math.sin(Date.now() * 0.0005) * 0.02;
             }
             if (renderer && scene && camera) {
                 renderer.render(scene, camera);
