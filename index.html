@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Retro Tic-Tac-Toe 3D: Wide Cinematic 100 Grid</title>
+    <title>Retro Tic-Tac-Toe 3D: Ultimate Gold Fire Edition</title>
     <style>
         * {
             box-sizing: border-box;
@@ -16,7 +16,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #160e0a;
+            background-color: #140d09;
             font-family: 'Georgia', serif;
             color: #e7dec8;
         }
@@ -26,7 +26,7 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.65) 100%);
+            background: radial-gradient(circle, transparent 15%, rgba(0,0,0,0.7) 100%);
             z-index: 999;
         }
 
@@ -134,7 +134,7 @@
             text-transform: uppercase;
         }
 
-        /* HUD ATAS (Sesuai Gambar 1000065718.png) */
+        /* HUD ATAS (Sesuai Gambar Referensi) */
         #hud {
             position: absolute;
             top: 25px;
@@ -271,11 +271,12 @@
         }
 
         .banner-title {
-            font-size: 30px;
+            font-size: 32px;
             color: #fff;
-            text-shadow: 0 0 10px #ffaa00, 2px 2px 5px #000;
+            text-shadow: 0 0 10px #ffaa00, 2px 2px 8px #000;
             font-weight: bold;
             text-transform: uppercase;
+            letter-spacing: 2px;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -285,11 +286,10 @@
 
     <div class="vintage-overlay"></div>
 
-    <!-- MENU UTAMA -->
     <div id="menu-screen">
         <div class="menu-box">
             <h1>CENTURY GRID</h1>
-            <div class="subtitle">100-Squares 3D Board</div>
+            <div class="subtitle">100-Squares Gold Fire Edition</div>
             
             <div class="input-group">
                 <label>Nama Pemain 1</label>
@@ -309,7 +309,6 @@
         </div>
     </div>
 
-    <!-- HUD SKOR ATAS -->
     <div id="hud" style="display: none;">
         <div id="card-x" class="score-card">
             <div id="name-x" class="name">WAITING...</div>
@@ -324,10 +323,8 @@
         </div>
     </div>
 
-    <!-- RUNNING TEXT STATUS -->
     <div id="status-text" style="display: none;">MENGHUBUNGKAN...</div>
 
-    <!-- DOCK PANEL TOMBOL CONTROL BAWAH -->
     <div id="control-dock" style="display: none;">
         <div class="row-buttons">
             <button class="dock-btn" onclick="refreshTampilan()">🔄 Refresh Tampilan</button>
@@ -336,7 +333,6 @@
         <button class="dock-btn danger" onclick="selesaikanPermainan()">🏁 Selesaikan Permainan</button>
     </div>
 
-    <!-- NOTIFIKASI PEMENANG -->
     <div id="banner-overlay">
         <div id="banner-text" class="banner-title">-</div>
     </div>
@@ -400,15 +396,15 @@
 
         // --- ENGINE THREE.JS ---
         let scene, camera, renderer, raycaster, mouse;
-        let boardGroup, cellsArray = [], piecesGroup;
+        let boardGroup, cellsArray = [], piecesGroup, fireParticles = [];
 
         function build3DScene() {
             const canvas = document.getElementById('game-canvas');
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x160e0a);
+            scene.background = new THREE.Color(0x140d09);
 
-            // FOV 32 memberikan kenyamanan distorsi wide-angle yang pas tanpa merusak bentuk bidak
-            camera = new THREE.PerspectiveCamera(32, window.innerWidth / window.innerHeight, 0.1, 1000);
+            // FOV 34 ideal untuk distorsi wide-angle papan 100 petak
+            camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 1000);
             
             renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -418,7 +414,7 @@
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
 
-            // SUTRADARA LAMPU
+            // LIGHITING RETRO HANGAT
             const ambientLight = new THREE.AmbientLight(0xfff5ea, 0.65);
             scene.add(ambientLight);
 
@@ -447,7 +443,7 @@
             animate();
         }
 
-        // --- MEMBUAT PAPAN COKELAT MATRIKS UTUH 10x10 ---
+        // --- MEMBUAT PAPAN RETRO UTUH 10x10 ---
         function create100GridBoard() {
             cellsArray = [];
             while(boardGroup.children.length > 1) {
@@ -479,24 +475,23 @@
             }
         }
 
-        // --- PENYESUAIAN KAMERA WIDE DINAMIS (RESPONSIF AUTO-ZOOM OUT) ---
+        // --- JUARA VISUAL: SEPENUHNYA TERLIHAT WIDE TANPA TERPOTONG ---
         function adjustCamera() {
             const aspect = window.innerWidth / window.innerHeight;
 
             if (aspect < 1) {
-                // MODAL POTRAIT (Layar HP Tegak): Kamera secara otomatis mundur ke belakang (Z bertambah)
-                // dan naik sedikit (Y bertambah) agar lebar horizontal papan tidak terpotong tepi layar samping.
-                // Menggunakan rasio pengali berbasis kerampingan layar.
+                // UNTUK HP VERTIKAL (PORTRAIT): Kamera ditarik mundur lebih jauh (Z=12.5) dan naik tinggi (Y=14.0)
+                // Ini memastikan seluruh sudut luar kotak 100 petak masuk 100% ke dalam layar dari kiri ke kanan.
                 const multiplier = 1 / aspect;
-                const targetZ = Math.max(9.5, 6.4 * multiplier);
-                const targetY = Math.max(10.5, 7.2 * multiplier);
+                const targetZ = Math.max(10.5, 7.5 * multiplier);
+                const targetY = Math.max(12.0, 8.5 * multiplier);
                 
                 camera.position.set(0, targetY, targetZ);
-                camera.lookAt(0, -1.0, 0.0);
+                camera.lookAt(0, -1.2, -0.2);
             } else {
-                // MODAL LANDSCAPE (Layar PC/Tablet Lebar): Sudut pandang wide ideal default yang sangat lega.
-                camera.position.set(0, 10.2, 9.2);
-                camera.lookAt(0, -0.65, 0.1);
+                // UNTUK DESKTOP/PC (LANDSCAPE): Sudut pandang sinematik super lega berwujud sempurna.
+                camera.position.set(0, 11.2, 9.8);
+                camera.lookAt(0, -0.7, 0.1);
             }
         }
 
@@ -555,7 +550,7 @@
             return group;
         }
 
-        // --- WIN LOGIC ---
+        // --- LOGIKA KEMENANGAN & PEMICU EFEK CORETAN API EMAS (GOLD FIRE ANIMATION) ---
         function checkWinCondition(lastIdx) {
             const size = GameState.gridSize;
             const r = Math.floor(lastIdx / size);
@@ -563,37 +558,39 @@
             const sym = GameState.currentGrid[lastIdx];
 
             const directions = [
-                { dr: 0, dc: 1 },  
-                { dr: 1, dc: 0 },  
-                { dr: 1, dc: 1 },  
-                { dr: 1, dc: -1 }  
+                { dr: 0, dc: 1 },  // Horizontal
+                { dr: 1, dc: 0 },  // Vertical
+                { dr: 1, dc: 1 },  // Diagonal Kanan-Bawah
+                { dr: 1, dc: -1 }  // Diagonal Kiri-Bawah
             ];
 
             for (let d of directions) {
-                let count = 1;
+                let winningIndices = [lastIdx];
 
+                // Cek arah maju
                 let step = 1;
                 while (true) {
                     let nr = r + d.dr * step;
                     let nc = c + d.dc * step;
                     if (nr >= 0 && nr < size && nc >= 0 && nc < size && GameState.currentGrid[nr * size + nc] === sym) {
-                        count++;
+                        winningIndices.push(nr * size + nc);
                         step++;
                     } else { break; }
                 }
 
+                // Cek arah mundur
                 step = 1;
                 while (true) {
                     let nr = r - d.dr * step;
                     let nc = c - d.dc * step;
                     if (nr >= 0 && nr < size && nc >= 0 && nc < size && GameState.currentGrid[nr * size + nc] === sym) {
-                        count++;
+                        winningIndices.push(nr * size + nc);
                         step++;
                     } else { break; }
                 }
 
-                if (count >= 5) {
-                    announceWinner(sym);
+                if (winningIndices.length >= 5) {
+                    triggerGoldFireLine(winningIndices, sym);
                     return;
                 }
             }
@@ -605,6 +602,79 @@
                 updateHUD();
                 GameState.isLock = false;
             }
+        }
+
+        // --- SISTEM PARTIKEL CORETAAN API EMAS MENYALA ---
+        function triggerGoldFireLine(indices, winner) {
+            // Urutkan indeks kotak agar coretan api berjalan berurutan rapi dari ujung ke ujung
+            indices.sort((a, b) => a - b);
+            
+            const startCell = cellsArray[indices[0]];
+            const endCell = cellsArray[indices[indices.length - 1]];
+
+            const startPos = new THREE.Vector3(startCell.position.x, 0.28, startCell.position.z);
+            const endPos = new THREE.Vector3(endCell.position.x, 0.28, endCell.position.z);
+
+            // Objek dummy untuk di-animasikan jalurnya memakai GSAP Tracer
+            const traceObj = { x: startPos.x, y: startPos.y, z: startPos.z };
+
+            // Buat kilatan cahaya emas bergaris mengikuti jalur api
+            const traceGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(300); // Tampung data titik ekor api
+            traceGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const traceMaterial = new THREE.PointsMaterial({
+                color: 0xffaa00,
+                size: 0.15,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            const particleSystem = new THREE.Points(traceGeometry, traceMaterial);
+            boardGroup.add(particleSystem);
+
+            let pCount = 0;
+
+            // Jalankan animasi semburan api emas
+            gsap.to(traceObj, {
+                x: endPos.x,
+                y: endPos.y,
+                z: endPos.z,
+                duration: 1.0,
+                ease: "power1.inOut",
+                onUpdate: () => {
+                    // Lahirkan percikan partikel api baru di setiap koordinat lintasan
+                    for(let i=0; i<4; i++) {
+                        fireParticles.push({
+                            pos: new THREE.Vector3(
+                                traceObj.x + (Math.random() - 0.5) * 0.15,
+                                traceObj.y + Math.random() * 0.2,
+                                traceObj.z + (Math.random() - 0.5) * 0.15
+                            ),
+                            vel: new THREE.Vector3((Math.random()-0.5)*0.02, 0.03 + Math.random()*0.03, (Math.random()-0.5)*0.02),
+                            age: 0,
+                            maxAge: 30 + Math.random() * 20,
+                            mesh: new THREE.Mesh(
+                                new THREE.BoxGeometry(0.06, 0.06, 0.06),
+                                new THREE.MeshBasicMaterial({
+                                    color: Math.random() > 0.3 ? 0xffaa00 : 0xff3300,
+                                    transparent: true
+                                })
+                            )
+                        });
+                        
+                        const newParticle = fireParticles[fireParticles.length - 1];
+                        boardGroup.add(newParticle.mesh);
+                    }
+                },
+                onComplete: () => {
+                    // Bersihkan sistem jalur utama, sisakan sisa sisa bara api terbang
+                    setTimeout(() => {
+                        boardGroup.remove(particleSystem);
+                        announceWinner(winner);
+                    }, 400);
+                }
+            });
         }
 
         function announceWinner(winner) {
@@ -633,6 +703,10 @@
         }
 
         function resetPapan() {
+            // Bersihkan sisa partikel api
+            fireParticles.forEach(p => boardGroup.remove(p.mesh));
+            fireParticles = [];
+
             while(piecesGroup.children.length > 0){
                 piecesGroup.remove(piecesGroup.children[0]);
             }
@@ -651,9 +725,29 @@
             document.getElementById('menu-screen').style.opacity = 1;
         }
 
-        // ANIMATION LOOP
+        // ANIMATION LOOP SYSTEM
         function animate() {
             requestAnimationFrame(animate);
+            
+            // Proses pergerakan & siklus hidup partikel api emas
+            for (let i = fireParticles.length - 1; i >= 0; i--) {
+                let p = fireParticles[i];
+                p.pos.add(p.vel);
+                p.mesh.position.copy(p.pos);
+                p.mesh.rotation.x += 0.1;
+                p.age++;
+                
+                // Efek memudar mengecil layaknya bara api nyata
+                let ratio = 1 - (p.age / p.maxAge);
+                p.mesh.scale.set(ratio, ratio, ratio);
+                p.mesh.material.opacity = ratio;
+
+                if (p.age >= p.maxAge) {
+                    boardGroup.remove(p.mesh);
+                    fireParticles.splice(i, 1);
+                }
+            }
+
             if (boardGroup && !GameState.isLock) {
                 boardGroup.rotation.y = Math.sin(Date.now() * 0.0002) * 0.01;
                 boardGroup.position.y = Math.sin(Date.now() * 0.0005) * 0.02;
